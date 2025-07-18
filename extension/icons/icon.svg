@@ -1,0 +1,19 @@
+<!-- SVG icon for the extension -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <!-- WiFi signal background -->
+  <circle cx="64" cy="64" r="60" fill="#0078d4" stroke="#005a9e" stroke-width="2"/>
+  
+  <!-- WiFi signal arcs -->
+  <path d="M 64 96 A 32 32 0 0 0 96 64" fill="none" stroke="white" stroke-width="4" stroke-linecap="round"/>
+  <path d="M 64 96 A 24 24 0 0 0 88 72" fill="none" stroke="white" stroke-width="4" stroke-linecap="round"/>
+  <path d="M 64 96 A 16 16 0 0 0 80 80" fill="none" stroke="white" stroke-width="4" stroke-linecap="round"/>
+  <path d="M 64 96 A 8 8 0 0 0 72 88" fill="none" stroke="white" stroke-width="4" stroke-linecap="round"/>
+  
+  <!-- Lock icon -->
+  <rect x="48" y="50" width="32" height="24" rx="4" fill="white"/>
+  <path d="M 54 50 L 54 44 A 10 10 0 0 1 74 44 L 74 50" fill="none" stroke="#0078d4" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="64" cy="62" r="4" fill="#0078d4"/>
+  
+  <!-- Auto symbol -->
+  <text x="64" y="110" font-family="Arial, sans-serif" font-size="12" font-weight="bold" text-anchor="middle" fill="white">AUTO</text>
+</svg>

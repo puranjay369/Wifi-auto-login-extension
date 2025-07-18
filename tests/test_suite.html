@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WiFi Auto Login Extension Test Suite</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .test-section {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .test-section h2 {
+            color: #495057;
+            margin-top: 0;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .warning { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        
+        .test-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin: 15px 0;
+        }
+        .test-links a {
+            display: block;
+            padding: 10px;
+            background: #e9ecef;
+            text-decoration: none;
+            color: #495057;
+            border-radius: 4px;
+            text-align: center;
+        }
+        .test-links a:hover {
+            background: #ced4da;
+        }
+        pre {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔐 WiFi Auto Login Extension Test Suite</h1>
+    
+    <div class="test-section">
+        <h2>📋 Extension Status Check</h2>
+        <button onclick="checkExtensionStatus()">Check Extension Status</button>
+        <div id="extension-status"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>🧪 Test Portal Pages</h2>
+        <p>Click on these links to test the auto-login functionality on different portal page types:</p>
+        <div class="test-links">
+            <a href="test_portal.html" target="_blank">Basic Portal Test</a>
+            <a href="http://neverssl.com" target="_blank">NeverSSL (Real Portal Test)</a>
+            <a href="http://192.168.1.1" target="_blank">Router Login (192.168.1.1)</a>
+            <a href="http://10.0.0.1" target="_blank">Router Login (10.0.0.1)</a>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>⚙️ Configuration Instructions</h2>
+        <ol>
+            <li><strong>Install Extension:</strong> Load the extension in Chrome by going to <code>chrome://extensions/</code> and clicking "Load unpacked"</li>
+            <li><strong>Configure Credentials:</strong> Click on the extension icon in the toolbar and enter your WiFi credentials</li>
+            <li><strong>Enable Auto-Login:</strong> Make sure the "Enable Auto-Login" checkbox is checked</li>
+            <li><strong>Set Search Engine:</strong> Choose your preferred search engine for redirect after login</li>
+            <li><strong>Enable Redirect:</strong> Check "Enable Redirect" to automatically redirect after successful login</li>
+        </ol>
+    </div>
+
+    <div class="test-section">
+        <h2>🔍 Portal Detection Test</h2>
+        <button onclick="testPortalDetection()">Test Current Page Portal Detection</button>
+        <div id="portal-detection-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>🛠️ Debug Information</h2>
+        <button onclick="showDebugInfo()">Show Debug Info</button>
+        <button onclick="clearConsole()">Clear Console</button>
+        <div id="debug-info"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>📚 How to Test</h2>
+        <div class="info status">
+            <strong>Testing Steps:</strong>
+            <ol>
+                <li>Configure the extension with test credentials (username: "test", password: "test123")</li>
+                <li>Visit the test portal page or a real captive portal</li>
+                <li>Check browser console for debug messages</li>
+                <li>Verify that credentials are filled automatically</li>
+                <li>Check if login form is submitted</li>
+                <li>Verify redirect to search engine (if enabled)</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        function checkExtensionStatus() {
+            const statusDiv = document.getElementById('extension-status');
+            
+            // Check if we're in a Chrome extension context
+            if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.id) {
+                statusDiv.innerHTML = '<div class="success status">✅ Extension context detected</div>';
+                
+                // Try to get stored settings
+                if (chrome.storage && chrome.storage.sync) {
+                    chrome.storage.sync.get(['username', 'password', 'enabled', 'searchEngine', 'enableRedirect'], function(result) {
+                        let configStatus = '<div class="info status"><strong>Current Configuration:</strong><br>';
+                        configStatus += `Username: ${result.username ? '✅ Set' : '❌ Not set'}<br>`;
+                        configStatus += `Password: ${result.password ? '✅ Set' : '❌ Not set'}<br>`;
+                        configStatus += `Auto-Login: ${result.enabled ? '✅ Enabled' : '❌ Disabled'}<br>`;
+                        configStatus += `Search Engine: ${result.searchEngine || 'Not set'}<br>`;
+                        configStatus += `Redirect: ${result.enableRedirect ? '✅ Enabled' : '❌ Disabled'}`;
+                        configStatus += '</div>';
+                        statusDiv.innerHTML += configStatus;
+                    });
+                }
+            } else {
+                statusDiv.innerHTML = '<div class="warning status">⚠️ Extension context not detected. Make sure you\'re viewing this page from within the extension or a page where the content script is loaded.</div>';
+            }
+        }
+
+        function testPortalDetection() {
+            const resultDiv = document.getElementById('portal-detection-result');
+            
+            // Portal detection logic (simplified version of content script)
+            const PORTAL_INDICATORS = ['username', 'password', 'login', 'signin', 'auth', 'captive', 'portal', 'welcome', 'connect', 'internet access', 'wifi', 'hotspot'];
+            
+            const pageText = document.body.innerText.toLowerCase();
+            const pageTitle = document.title.toLowerCase();
+            const url = window.location.href.toLowerCase();
+            
+            const hasPortalKeywords = PORTAL_INDICATORS.some(indicator => 
+                pageText.includes(indicator) || 
+                pageTitle.includes(indicator) || 
+                url.includes(indicator)
+            );
+            
+            const hasPortalURL = url.includes('192.168.') || 
+                                url.includes('10.0.') || 
+                                url.includes('172.16.') ||
+                                url.includes('captive') ||
+                                url.includes('portal') ||
+                                url.includes('auth') ||
+                                url.includes('gateway') ||
+                                url.includes('wifi') ||
+                                url.includes('hotspot') ||
+                                url.includes('neverssl.com') ||
+                                url.includes('connectify.me');
+            
+            const hasLoginForm = document.querySelector('input[type="password"]') && 
+                                (document.querySelector('input[name*="user" i]') || 
+                                 document.querySelector('input[name*="login" i]') ||
+                                 document.querySelector('input[type="text"]'));
+            
+            let result = '<div class="info status"><strong>Portal Detection Results:</strong><br>';
+            result += `Portal Keywords: ${hasPortalKeywords ? '✅' : '❌'}<br>`;
+            result += `Portal URL Pattern: ${hasPortalURL ? '✅' : '❌'}<br>`;
+            result += `Login Form Present: ${hasLoginForm ? '✅' : '❌'}<br>`;
+            result += `<strong>Is Portal Page: ${hasPortalURL || (hasPortalKeywords && hasLoginForm) ? '✅ YES' : '❌ NO'}</strong>`;
+            result += '</div>';
+            
+            resultDiv.innerHTML = result;
+        }
+
+        function showDebugInfo() {
+            const debugDiv = document.getElementById('debug-info');
+            
+            let debugInfo = '<pre><strong>Debug Information:</strong>\n\n';
+            debugInfo += `Current URL: ${window.location.href}\n`;
+            debugInfo += `Page Title: ${document.title}\n`;
+            debugInfo += `User Agent: ${navigator.userAgent}\n\n`;
+            
+            // Form elements
+            const inputs = document.querySelectorAll('input');
+            debugInfo += `Input fields found: ${inputs.length}\n`;
+            inputs.forEach((input, index) => {
+                debugInfo += `  ${index + 1}. Type: ${input.type}, Name: ${input.name}, ID: ${input.id}, Placeholder: ${input.placeholder}\n`;
+            });
+            
+            const buttons = document.querySelectorAll('button, input[type="submit"]');
+            debugInfo += `\nButtons found: ${buttons.length}\n`;
+            buttons.forEach((button, index) => {
+                debugInfo += `  ${index + 1}. Type: ${button.type}, Text: ${button.textContent || button.value}, ID: ${button.id}\n`;
+            });
+            
+            debugInfo += '\n--- Console Output ---\n';
+            debugInfo += 'Check browser console (F12) for detailed logs from the content script.\n';
+            debugInfo += '</pre>';
+            
+            debugDiv.innerHTML = debugInfo;
+        }
+
+        function clearConsole() {
+            console.clear();
+            alert('Console cleared. Content script logs will appear here when visiting portal pages.');
+        }
+
+        // Auto-check extension status on load
+        window.addEventListener('load', checkExtensionStatus);
+        
+        // Global debug function
+        window.debugWifiLogin = function() {
+            console.log('=== WiFi Login Debug ===');
+            testPortalDetection();
+            showDebugInfo();
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WiFi Portal Login - Test Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 400px;
+            margin: 50px auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            background-color: #f9f9f9;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .portal-info {
+            background-color: #e7f3ff;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 5px;
+            display: none;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>WiFi Portal Login</h1>
+        <p>Connect to Internet Access</p>
+    </div>
+    
+    <div class="portal-info">
+        <p><strong>Welcome to Free WiFi!</strong></p>
+        <p>Please login to access the internet</p>
+    </div>
+
+    <form id="loginForm">
+        <div class="form-group">
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" placeholder="Enter your username" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" placeholder="Enter your password" required>
+        </div>
+        
+        <button type="submit" id="loginBtn">Connect to Internet</button>
+    </form>
+    
+    <div id="result"></div>
+
+    <script>
+        // Simulate portal login functionality
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const resultDiv = document.getElementById('result');
+            
+            if (username && password) {
+                // Simulate login process
+                document.getElementById('loginBtn').textContent = 'Connecting...';
+                document.getElementById('loginBtn').disabled = true;
+                
+                setTimeout(() => {
+                    // Simulate successful login
+                    resultDiv.innerHTML = '<strong>Success!</strong> You are now connected to the internet. Welcome to WiFi Access!';
+                    resultDiv.className = 'success';
+                    resultDiv.style.display = 'block';
+                    
+                    document.getElementById('loginBtn').textContent = 'Connected';
+                    
+                    // Change page content to indicate success
+                    setTimeout(() => {
+                        document.body.innerHTML = `
+                            <div style="text-align: center; padding: 50px;">
+                                <h1 style="color: green;">✓ Successfully Connected!</h1>
+                                <p>You now have internet access.</p>
+                                <p>Authentication successful for user: <strong>${username}</strong></p>
+                                <p>You may now browse the internet freely.</p>
+                            </div>
+                        `;
+                    }, 2000);
+                    
+                }, 1500);
+            } else {
+                resultDiv.innerHTML = '<strong>Error!</strong> Please enter both username and password.';
+                resultDiv.className = 'error';
+                resultDiv.style.display = 'block';
+            }
+        });
+        
+        // Log form detection for debugging
+        console.log('Portal page loaded');
+        console.log('Username field:', document.getElementById('username'));
+        console.log('Password field:', document.getElementById('password'));
+        console.log('Submit button:', document.getElementById('loginBtn'));
+    </script>
+</body>
+</html>

@@ -673,11 +673,55 @@
             fillField(passwordField, profile.password);
             console.log('Credentials filled');
             
-            // Submit form
+            // Submit form with enhanced portal support
             setTimeout(() => {
+              // Enhanced submit logic for complex portals
               if (submitButton) {
                 console.log('Clicking submit button:', submitButton);
-                submitButton.click();
+                
+                // Special handling for Palo Alto Networks portals
+                if (window.location.href.includes('uid.php') || 
+                    window.location.href.includes('paloalto') ||
+                    document.querySelector('input[name="prot"]') ||
+                    document.querySelector('input[name="magic"]')) {
+                  console.log('WiFi Auto Login: Detected Palo Alto Networks portal');
+                  
+                  // Try multiple submission methods for Palo Alto
+                  // Method 1: Direct button click with events
+                  submitButton.focus();
+                  submitButton.dispatchEvent(new Event('focus', { bubbles: true }));
+                  setTimeout(() => {
+                    submitButton.click();
+                    submitButton.dispatchEvent(new Event('click', { bubbles: true }));
+                  }, 200);
+                  
+                  // Method 2: Trigger form validation if exists
+                  const form = submitButton.closest('form');
+                  if (form && form.onsubmit) {
+                    setTimeout(() => {
+                      if (typeof form.onsubmit === 'function') {
+                        form.onsubmit();
+                      }
+                    }, 500);
+                  }
+                  
+                  // Method 3: Look for custom JavaScript functions
+                  setTimeout(() => {
+                    // Check for common Palo Alto submit functions
+                    if (typeof window.submitForm === 'function') {
+                      window.submitForm();
+                    } else if (typeof window.doLogin === 'function') {
+                      window.doLogin();
+                    } else if (typeof window.loginSubmit === 'function') {
+                      window.loginSubmit();
+                    }
+                  }, 1000);
+                  
+                } else {
+                  // Standard portal submission
+                  submitButton.click();
+                }
+                
                 console.log('WiFi Auto Login: Form submitted');
                 
                 // Check for successful login after submit
@@ -702,20 +746,62 @@
                   }
                 }, 3000);
               } else {
-                console.log('WiFi Auto Login: No submit button found, trying form submit');
+                console.log('WiFi Auto Login: No submit button found, trying alternative methods');
+                
                 // Try to submit the form directly
                 const form = usernameField.closest('form');
                 if (form) {
-                  form.submit();
-                  console.log('WiFi Auto Login: Form submitted directly');
+                  console.log('WiFi Auto Login: Attempting direct form submission');
                   
-                  // Check for redirect after direct form submit
-                  setTimeout(async () => {
-                    if (await isLoginSuccessful()) {
-                      showNotification('✅ WiFi Login Successful!', 'success');
-                      smartRedirect();
+                  // Method 1: Standard form submit
+                  try {
+                    form.submit();
+                    console.log('WiFi Auto Login: Form submitted directly');
+                  } catch (e) {
+                    console.log('WiFi Auto Login: Direct submit failed:', e);
+                  }
+                  
+                  // Method 2: Trigger form submit event
+                  setTimeout(() => {
+                    const submitEvent = new Event('submit', { bubbles: true, cancelable: true });
+                    form.dispatchEvent(submitEvent);
+                  }, 500);
+                  
+                  // Method 3: Look for hidden submit buttons or alternative selectors
+                  setTimeout(() => {
+                    const alternativeSubmits = [
+                      'input[type="image"]',
+                      'button[onclick*="submit"]',
+                      'a[onclick*="submit"]',
+                      'div[onclick*="submit"]',
+                      'span[onclick*="submit"]',
+                      '[role="button"]',
+                      '.login-button',
+                      '.submit-button',
+                      '#login-btn',
+                      '#submit-btn'
+                    ];
+                    
+                    for (let selector of alternativeSubmits) {
+                      const altButton = document.querySelector(selector);
+                      if (altButton && altButton.offsetParent !== null) {
+                        console.log('WiFi Auto Login: Found alternative submit element:', selector);
+                        altButton.click();
+                        break;
+                      }
                     }
-                  }, 3000);
+                  }, 1000);
+                  
+                  // Method 4: Simulate Enter key press on password field
+                  setTimeout(() => {
+                    const enterEvent = new KeyboardEvent('keypress', {
+                      key: 'Enter',
+                      keyCode: 13,
+                      which: 13,
+                      bubbles: true
+                    });
+                    passwordField.dispatchEvent(enterEvent);
+                  }, 1500);
                 }
               }
             }, 1000);
@@ -764,6 +850,57 @@
         type: passwordField.type,
         placeholder: passwordField.placeholder
       });
+    }
+    
+    // Additional debug for Palo Alto portals
+    console.log('=== Palo Alto Portal Debug ===');
+    console.log('Hidden fields:', document.querySelectorAll('input[type="hidden"]'));
+    console.log('Form onsubmit:', document.querySelector('form')?.onsubmit);
+    console.log('Global functions:', {
+      submitForm: typeof window.submitForm,
+      doLogin: typeof window.doLogin,
+      loginSubmit: typeof window.loginSubmit
+    });
+    console.log('Portal indicators:', {
+      isPaloAlto: window.location.href.includes('uid.php'),
+      hasTokens: !!document.querySelector('input[name="prot"], input[name="magic"]'),
+      hasJavaScript: !!document.querySelector('script')
+    });
+  };
+
+  // Special debug function for Palo Alto portals
+  window.debugPaloAlto = function() {
+    console.log('=== Palo Alto Portal Specific Debug ===');
+    const form = document.querySelector('form');
+    if (form) {
+      console.log('Form action:', form.action);
+      console.log('Form method:', form.method);
+      console.log('Form elements:', form.elements);
+      
+      // Try to find Palo Alto specific fields
+      const paloAltoFields = {
+        prot: document.querySelector('input[name="prot"]'),
+        magic: document.querySelector('input[name="magic"]'),
+        token: document.querySelector('input[name="token"]'),
+        vsys: document.querySelector('input[name="vsys"]'),
+        rule: document.querySelector('input[name="rule"]')
+      };
+      
+      console.log('Palo Alto fields:', paloAltoFields);
+      
+      // Check for JavaScript validation
+      const scripts = document.querySelectorAll('script');
+      console.log('Number of scripts:', scripts.length);
+      
+      // Try manual submission
+      console.log('Attempting manual form submission...');
+      if (typeof window.submitForm === 'function') {
+        console.log('Found submitForm function, calling...');
+        window.submitForm();
+      } else {
+        console.log('No submitForm function, trying direct submit...');
+        form.submit();
+      }
     }
   };
 
